@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "opentrons-mujoco-viz"
+version = "0.1.0"
+description = "MuJoCo 3D visualisation of Opentrons OT-2 protocols, driven by opentrons_simulate run logs"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+dependencies = [
+    "mujoco>=3.0.0",
+    "numpy>=1.24",
+    "imageio[ffmpeg]>=2.28",
+    "gymnasium>=0.29",
+]
+
+[project.optional-dependencies]
+opentrons = [
+    "opentrons==7.5.0",
+    "opentrons-shared-data==7.5.0",
+    "pydantic<2",
+]
+dev = [
+    "opentrons==7.5.0",
+    "opentrons-shared-data==7.5.0",
+    "pydantic<2",
+    "trimesh",
+    "matplotlib",
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["opentrons.visualization*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"opentrons.visualization" = ["assets/*.xml", "assets/*.obj", "assets/*.json"]

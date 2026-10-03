@@ -1,0 +1,246 @@
+<!-- OT-2 WetLab MuJoCo model — full 11-slot deck
+     Cartesian gantry: X slide + Y slide + Z slide, position-controlled
+     Module state indicators are driven by geom rgba / qpos from Python.
+     Units: metres. Deck centre at world origin, Z up.
+-->
+<mujoco model="ot2_wetlab">
+  <compiler angle="radian" autolimits="true"/>
+  <option gravity="0 0 -9.81" timestep="0.002" integrator="RK4"/>
+
+  <visual>
+    <global offwidth="960" offheight="540"/>
+    <headlight ambient=".45 .48 .58" diffuse=".9 .9 .95" specular=".3 .3 .3"/>
+    <rgba haze=".07 .07 .12 1"/>
+  </visual>
+
+  <asset>
+    <!-- Deck / structure -->
+    <material name="deck"       rgba=".22 .28 .42 1"/>
+    <material name="frame"      rgba=".55 .62 .72 1" specular=".8" shininess=".5"/>
+    <material name="rack"       rgba=".25 .30 .50 1"/>
+    <material name="plate"      rgba=".40 .22 .65 1"/>
+    <material name="trough"     rgba=".15 .45 .25 1"/>
+    <material name="pipette"    rgba=".30 .72 .85 1" specular=".9" shininess=".6"/>
+    <material name="tip_idle"   rgba=".98 .65 .08 1"/>
+    <material name="tip_on"     rgba=".98 .88 .15 1" emission=".25"/>
+    <material name="reagent"    rgba=".10 .95 .65 .95" emission=".05"/>
+    <material name="liquid"     rgba=".10 .72 .98 .92" emission=".05"/>
+    <material name="well_e"     rgba=".15 .10 .28 1"/>
+    <material name="well_f"     rgba=".08 .55 .98 .95" emission=".12"/>
+    <!-- Module materials -->
+    <material name="module_body" rgba=".18 .24 .38 1"/>
+    <material name="mag_idle"   rgba=".35 .35 .45 1"/>
+    <material name="mag_on"     rgba=".20 .60 1.0 1"  emission=".3"/>
+    <material name="temp_cold"  rgba=".20 .40 .90 1"  emission=".1"/>
+    <material name="temp_hot"   rgba=".95 .25 .10 1"  emission=".3"/>
+    <material name="tc_body"    rgba=".20 .22 .32 1"/>
+    <material name="tc_lid"     rgba=".28 .30 .42 1" specular=".5"/>
+    <material name="hs_body"    rgba=".22 .25 .38 1"/>
+    <material name="latch_open" rgba=".10 .90 .35 1"  emission=".2"/>
+    <material name="latch_lock" rgba=".90 .20 .15 1"  emission=".15"/>
+    <material name="trash"      rgba=".12 .12 .18 1"/>
+  </asset>
+
+  <worldbody>
+    <!-- Background floor -->
+    <geom type="plane" size="1.5 1.5 .01" rgba=".04 .04 .08 1" pos="0 0 -.23"/>
+
+    <!-- ── DECK ─────────────────────────────────────────────────────────── -->
+    <body name="deck" pos="0 0 0">
+      <!-- Deck surface: 4 rows × 3 cols = 11 slots + trash -->
+      <geom type="box" size=".312 .282 .015" pos="0 0 -.015" material="deck"/>
+
+      <!-- Corner posts -->
+      <geom type="box" size=".012 .012 .18" pos="-.295 -.27  .165" material="frame"/>
+      <geom type="box" size=".012 .012 .18" pos="-.295  .27  .165" material="frame"/>
+      <geom type="box" size=".012 .012 .18" pos=" .295 -.27  .165" material="frame"/>
+      <geom type="box" size=".012 .012 .18" pos=" .295  .27  .165" material="frame"/>
+      <!-- X rail (top, back) -->
+      <geom type="box" size=".300 .008 .008" pos="0 .265 .345" material="frame"/>
+      <!-- Y support rails (sides) -->
+      <geom type="box" size=".008 .270 .008" pos="-.295 0 .345" material="frame"/>
+      <geom type="box" size=".008 .270 .008" pos=" .295 0 .345" material="frame"/>
+
+      <!-- ── ROW 1 ────────────────────────────────────────────────────── -->
+      <!-- Slot 1: TIPRACK  (x=-.152, y=-.170) -->
+      <body name="tiprack" pos="-.152 -.170 0">
+        <geom type="box" size=".056 .043 .007" pos="0 0 .004" material="rack"/>
+        <geom type="cylinder" size=".003 .011" pos="-.040  .032 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.040  .023 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.040  .014 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.031  .032 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.031  .023 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.031  .014 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.022  .032 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.022  .023 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.022  .014 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.013  .032 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="-.013  .014 .019" material="tip_idle"/>
+        <geom type="cylinder" size=".003 .011" pos="  0    .032 .019" material="tip_idle"/>
+        <!-- A1 tip (toggled via rgba) -->
+        <geom name="tip_A1" type="cylinder" size=".003 .011" pos="-.050  .038 .019" material="tip_idle"/>
+        <site name="site_tipA1" pos="-.050 .038 .030" size=".003"/>
+      </body>
+
+      <!-- Slot 2: 96-WELL PLATE  (x=0, y=-.170) -->
+      <body name="plate" pos="0 -.170 0">
+        <geom type="box" size=".064 .043 .007" pos="0 0 .004" material="plate"/>
+        <geom name="w_A1" type="cylinder" size=".0027 .004" pos="-.050  .031 .008" material="well_e"/>
+        <geom name="w_B1" type="cylinder" size=".0027 .004" pos="-.050  .022 .008" material="well_e"/>
+        <geom name="w_C1" type="cylinder" size=".0027 .004" pos="-.050  .013 .008" material="well_e"/>
+        <geom name="w_D1" type="cylinder" size=".0027 .004" pos="-.050  .004 .008" material="well_e"/>
+        <geom name="w_E1" type="cylinder" size=".0027 .004" pos="-.050 -.005 .008" material="well_e"/>
+        <geom name="w_F1" type="cylinder" size=".0027 .004" pos="-.050 -.014 .008" material="well_e"/>
+        <geom name="w_G1" type="cylinder" size=".0027 .004" pos="-.050 -.023 .008" material="well_e"/>
+        <geom name="w_H1" type="cylinder" size=".0027 .004" pos="-.050 -.032 .008" material="well_e"/>
+        <geom type="cylinder" size=".0027 .004" pos="-.041 .031 .008" material="well_e"/>
+        <geom type="cylinder" size=".0027 .004" pos="-.041 .022 .008" material="well_e"/>
+        <geom type="cylinder" size=".0027 .004" pos="-.041 .013 .008" material="well_e"/>
+        <geom type="cylinder" size=".0027 .004" pos="-.041 .004 .008" material="well_e"/>
+        <geom type="cylinder" size=".0027 .004" pos="-.032 .031 .008" material="well_e"/>
+        <geom type="cylinder" size=".0027 .004" pos="-.032 .022 .008" material="well_e"/>
+        <geom type="cylinder" size=".0027 .004" pos="-.023 .031 .008" material="well_e"/>
+        <geom type="cylinder" size=".0027 .004" pos="-.023 .022 .008" material="well_e"/>
+        <site name="site_A1" pos="-.050  .031 .013" size=".003"/>
+        <site name="site_B1" pos="-.050  .022 .013" size=".003"/>
+      </body>
+
+      <!-- Slot 3: TROUGH  (x=.152, y=-.170) -->
+      <body name="trough" pos=".152 -.170 0">
+        <geom type="box" size=".056 .043 .009" pos="0 0 .005" material="trough"/>
+        <geom name="reagent_fill" type="box" size=".048 .037 .005" pos="0 0 .014" material="reagent"/>
+        <site name="site_trough" pos="0 0 .019" size=".003"/>
+      </body>
+
+      <!-- ── ROW 2 ────────────────────────────────────────────────────── -->
+      <!-- Slot 4: MAGNETIC MODULE  (x=-.152, y=-.085) -->
+      <body name="mag_module" pos="-.152 -.085 0">
+        <geom type="box" size=".056 .043 .012" pos="0 0 .006" material="module_body"/>
+        <!-- Magnet bar: raised when engaged (z position driven from Python via mocap/geom) -->
+        <geom name="mag_bar" type="box" size=".040 .004 .003" pos="0 0 .018" material="mag_idle"/>
+        <!-- LED indicator -->
+        <geom name="mag_led" type="cylinder" size=".003 .003" pos=".048 .035 .015" material="mag_idle"/>
+      </body>
+
+      <!-- Slot 5: EMPTY SLOT  (x=0, y=-.085) -->
+      <body name="slot5" pos="0 -.085 0">
+        <geom type="box" size=".056 .043 .003" pos="0 0 .001" rgba=".14 .16 .24 .5"/>
+      </body>
+
+      <!-- Slot 6: TEMPERATURE MODULE  (x=.152, y=-.085) -->
+      <body name="temp_module" pos=".152 -.085 0">
+        <geom type="box" size=".056 .043 .015" pos="0 0 .007" material="module_body"/>
+        <!-- Aluminum block top -->
+        <geom type="box" size=".042 .032 .004" pos="0 0 .018" material="frame"/>
+        <!-- Temperature LED indicator (color changes cold→hot) -->
+        <geom name="temp_led" type="cylinder" size=".004 .004" pos=".048 .035 .018" material="temp_cold"/>
+        <!-- Well array (simplified) -->
+        <geom type="cylinder" size=".003 .005" pos="-.020 .010 .023" material="well_e"/>
+        <geom type="cylinder" size=".003 .005" pos="-.010 .010 .023" material="well_e"/>
+        <geom type="cylinder" size=".003 .005" pos="0    .010 .023" material="well_e"/>
+        <geom type="cylinder" size=".003 .005" pos=".010 .010 .023" material="well_e"/>
+        <geom type="cylinder" size=".003 .005" pos="-.020 0    .023" material="well_e"/>
+        <geom type="cylinder" size=".003 .005" pos="-.010 0    .023" material="well_e"/>
+      </body>
+
+      <!-- ── ROW 3 ────────────────────────────────────────────────────── -->
+      <!-- Slots 7-8: THERMOCYCLER MODULE (spans 2 slots: x=-.152 and x=0, y=0) -->
+      <body name="thermocycler" pos="-.076 0 0">
+        <!-- Base body spanning two slots -->
+        <geom type="box" size=".115 .043 .025" pos="0 0 .012" material="tc_body"/>
+        <!-- PCR plate wells (simplified 8×3 representative) -->
+        <geom type="cylinder" size=".002 .003" pos="-.080 .020 .028" material="well_e"/>
+        <geom type="cylinder" size=".002 .003" pos="-.070 .020 .028" material="well_e"/>
+        <geom type="cylinder" size=".002 .003" pos="-.060 .020 .028" material="well_e"/>
+        <geom type="cylinder" size=".002 .003" pos="-.080 .010 .028" material="well_e"/>
+        <geom type="cylinder" size=".002 .003" pos="-.070 .010 .028" material="well_e"/>
+        <geom type="cylinder" size=".002 .003" pos="-.060 .010 .028" material="well_e"/>
+        <geom type="cylinder" size=".002 .003" pos="-.080 0    .028" material="well_e"/>
+        <geom type="cylinder" size=".002 .003" pos="-.070 0    .028" material="well_e"/>
+        <!-- Lid — slides up when open (z driven from Python via joint or rgba trick) -->
+        <body name="tc_lid_body" pos="0 0 0">
+          <joint name="j_tc_lid" type="slide" axis="0 0 1" range="0 .06" damping="500"/>
+          <geom name="tc_lid" type="box" size=".115 .043 .020" pos="0 0 .062" material="tc_lid"/>
+          <!-- Lid hinge indicator strip -->
+          <geom type="box" size=".115 .004 .002" pos="0 -.039 .080" material="frame"/>
+        </body>
+        <!-- Status LED -->
+        <geom name="tc_led" type="cylinder" size=".003 .003" pos=".105 .035 .020" material="mag_idle"/>
+      </body>
+
+      <!-- Slot 9: HEATER-SHAKER  (x=.152, y=0) -->
+      <body name="heater_shaker" pos=".152 0 0">
+        <geom type="box" size=".056 .043 .020" pos="0 0 .010" material="hs_body"/>
+        <!-- Plate platform -->
+        <geom type="box" size=".042 .032 .003" pos="0 0 .023" material="frame"/>
+        <!-- Latch indicator (front edge) -->
+        <geom name="hs_latch" type="box" size=".040 .004 .003" pos="0 -.039 .015" material="latch_open"/>
+        <!-- Status LED -->
+        <geom name="hs_led"   type="cylinder" size=".003 .003" pos=".048 .035 .020" material="mag_idle"/>
+      </body>
+
+      <!-- ── ROW 4 ────────────────────────────────────────────────────── -->
+      <!-- Slot 10: EMPTY  (x=-.152, y=.085) -->
+      <body name="slot10" pos="-.152 .085 0">
+        <geom type="box" size=".056 .043 .003" pos="0 0 .001" rgba=".14 .16 .24 .5"/>
+      </body>
+
+      <!-- Slot 11: EMPTY  (x=0, y=.085) -->
+      <body name="slot11" pos="0 .085 0">
+        <geom type="box" size=".056 .043 .003" pos="0 0 .001" rgba=".14 .16 .24 .5"/>
+      </body>
+
+      <!-- Trash bin  (x=.152, y=.085) -->
+      <body name="trash" pos=".152 .085 0">
+        <geom type="box" size=".056 .043 .020" pos="0 0 .010" material="trash"/>
+        <geom type="box" size=".056 .043 .003" pos="0 0 .022" rgba=".05 .05 .08 1"/>
+      </body>
+
+      <!-- ── PIPETTE GANTRY (Cartesian XYZ) ────────────────────────────── -->
+      <body name="x_carriage" pos="0 .265 .345">
+        <inertial pos="0 0 0" mass=".5" diaginertia=".001 .001 .001"/>
+        <joint name="j_x" type="slide" axis="1 0 0" range="-.29 .29" damping="80"/>
+        <geom type="box" size=".018 .018 .018" material="frame"/>
+        <geom type="box" size=".007 .175 .007" pos="0 -.175 0" material="frame"/>
+
+        <body name="y_head" pos="0 -.095 0">
+          <inertial pos="0 0 0" mass=".3" diaginertia=".0005 .0005 .0005"/>
+          <joint name="j_y" type="slide" axis="0 1 0" range="-.24 .24" damping="80"/>
+
+          <body name="z_column" pos="0 0 0">
+            <inertial pos="0 0 -.08" mass=".2" diaginertia=".0003 .0003 .0003"/>
+            <joint name="j_z" type="slide" axis="0 0 1" range="-.38 .02" damping="80"/>
+
+            <geom type="box" size=".007 .007 .04" pos="0 0 -.025" material="frame"/>
+            <geom type="cylinder" size=".005 .025" pos="0 0 -.075" material="pipette"/>
+            <geom type="cylinder" fromto="0 0 -.100 0 0 -.118" size=".003" material="pipette"/>
+            <!-- Detachable tip (rgba alpha toggled) -->
+            <geom name="pip_tip" type="cylinder" fromto="0 0 -.118 0 0 -.138"
+                  size=".0025" material="tip_idle" rgba=".95 .8 .1 0"/>
+            <!-- Liquid indicator -->
+            <geom name="pip_liquid" type="cylinder" size=".0022 .009" pos="0 0 -.126"
+                  material="liquid" rgba=".0 .62 .92 0"/>
+
+            <site name="pipette_tip" pos="0 0 -.138" size=".002"/>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <!-- ── Cameras ───────────────────────────────────────────────────────── -->
+    <camera name="iso"   pos=".55 -.65 .45" euler="65 0 38"/>
+    <camera name="side"  pos="0   -.85 .25" euler="73 0 0"/>
+    <camera name="top"   pos="0    0   .75" euler="0 0 0"/>
+    <camera name="front" pos="0   -.75 .20" euler="80 0 0"/>
+    <camera name="deck"  pos=".50 -.70 .40" euler="55 0 30"/>
+  </worldbody>
+
+  <!-- Position-controlled Cartesian actuators -->
+  <actuator>
+    <position name="act_x"      joint="j_x"      kp="8000" kv="400" ctrlrange="-.29 .29"/>
+    <position name="act_y"      joint="j_y"      kp="8000" kv="400" ctrlrange="-.24 .24"/>
+    <position name="act_z"      joint="j_z"      kp="8000" kv="400" ctrlrange="-.38 .02"/>
+    <position name="act_tc_lid" joint="j_tc_lid" kp="2000" kv="200" ctrlrange="0 .06"/>
+  </actuator>
+
+</mujoco>

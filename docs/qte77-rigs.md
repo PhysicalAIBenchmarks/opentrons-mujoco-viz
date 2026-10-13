@@ -3,7 +3,7 @@
 Research note, 2026-10-11. Full survey of the four projects:
 [Text2WetLab `docs/qte77-projects.md`](https://github.com/PhysicalAIBenchmarks/Text2WetLab/blob/claude/research-github-projects-yoz36a/docs/qte77-projects.md).
 
-qte77 is building an open, sub-$1k self-driving lab. Two of its repos move liquid:
+Andre Slavik ([qte77](https://github.com/qte77) on GitHub) is building an open, sub-$1k self-driving lab. Two of its repos move liquid:
 
 - [i3mega-pipettebot](https://github.com/qte77/i3mega-pipettebot): a stock Anycubic i3 Mega turned into a 3-axis gantry
   carrying an 8-channel DLAB dPette+. The host sends G-code, and the eight channels share one piston, so it works on

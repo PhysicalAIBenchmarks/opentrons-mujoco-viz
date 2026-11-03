@@ -228,11 +228,12 @@
     </body>
 
     <!-- ── Cameras ───────────────────────────────────────────────────────── -->
-    <camera name="iso"   pos=".55 -.65 .45" euler="65 0 38"/>
-    <camera name="side"  pos="0   -.85 .25" euler="73 0 0"/>
+    <!-- eulers in radians (compiler angle="radian"): 65/0/38, 73, 0, 80 and 55/0/30 degrees -->
+    <camera name="iso"   pos=".55 -.65 .45" euler="1.1345 0 0.6632"/>
+    <camera name="side"  pos="0   -.85 .25" euler="1.2741 0 0"/>
     <camera name="top"   pos="0    0   .75" euler="0 0 0"/>
-    <camera name="front" pos="0   -.75 .20" euler="80 0 0"/>
-    <camera name="deck"  pos=".50 -.70 .40" euler="55 0 30"/>
+    <camera name="front" pos="0   -.75 .20" euler="1.3963 0 0"/>
+    <camera name="deck"  pos=".50 -.70 .40" euler="0.9599 0 0.5236"/>
   </worldbody>
 
   <!-- Position-controlled Cartesian actuators -->
